@@ -1,9 +1,8 @@
 package dev.lotnest.dernbot.core.http;
 
 import com.google.common.collect.Maps;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.client.RestTemplate;
 
 import java.net.http.HttpResponse;
 import java.util.Map;
@@ -14,15 +13,13 @@ import java.util.concurrent.ConcurrentMap;
 public class HttpClient {
     private static final int[] OK_STATUS_CODES = {200, 201, 202, 203, 204, 205, 206, 207, 208, 226};
     private static final int POOL_SIZE = 10;
-    private static final Gson gson = new GsonBuilder().create();
     private static final ConcurrentMap<java.net.http.HttpClient, Boolean> httpClientPool = Maps.newConcurrentMap();
 
-    protected HttpClient() {
-        createClientPool();
-    }
+    private final RestTemplate restTemplate;
 
-    public static HttpClient newHttpClient() {
-        return new HttpClient();
+    protected HttpClient(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+        createClientPool();
     }
 
     private void createClientPool() {
@@ -115,30 +112,23 @@ public class HttpClient {
     }
 
     public <T> T getJson(String url, Class<T> responseType) {
-        return getJson(url, responseType, gson);
+        return getJson(url, responseType, (Object) null);
     }
 
-    public <T> T getJson(String url, Class<T> responseType, Gson gson) {
-        HttpResponse<String> response = get(url);
-        if (response != null) {
-            log.info("{} {}: {}", response.statusCode(), url, response.body());
-            if (response.body() != null && isOkStatusCode(response.statusCode())) {
-                return gson.fromJson(response.body(), responseType);
-            }
-        }
-        return null;
+    public <T> T getJson(String url, Class<T> responseType, Object... uriVariables) {
+        return restTemplate.getForObject(url, responseType, uriVariables);
     }
 
     public <T> CompletableFuture<T> getJsonAsync(String url, Class<T> responseType) {
-        return getJsonAsync(url, responseType, gson);
+        return getJsonAsync(url, responseType, (Object) null);
     }
 
-    public <T> CompletableFuture<T> getJsonAsync(String url, Class<T> responseType, Gson gson) {
+    public <T> CompletableFuture<T> getJsonAsync(String url, Class<T> responseType, Object... uriVariables) {
         return getAsync(url).thenApply(response -> {
             if (response != null) {
                 log.info("ASYNC {} {}: {}", response.statusCode(), url, response.body());
                 if (response.body() != null && isOkStatusCode(response.statusCode())) {
-                    return gson.fromJson(response.body(), responseType);
+                    return restTemplate.getForObject(url, responseType, uriVariables);
                 }
             }
             return null;

@@ -1,8 +1,10 @@
 package dev.lotnest.dernbot.jda.bot;
 
+import com.github.kaktushose.jda.commands.JDACommands;
 import com.google.common.base.Stopwatch;
-import dev.lotnest.dernbot.core.heartbeat.Heartbeat;
-import dev.lotnest.dernbot.core.utils.StoppableThread;
+import dev.lotnest.dernbot.DernBot;
+import io.github.cdimascio.dotenv.Dotenv;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
@@ -18,17 +20,25 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
-public class BotImpl implements Runnable, Bot {
-    private final StoppableThread heartbeat;
-    private final ShardManager shardManager;
-    private final boolean[] connected;
+public class BotImpl implements Bot {
+    private final SpringInteractionControllerInstantiator springInteractionControllerInstantiator;
 
-    public BotImpl() {
+    private ShardManager shardManager;
+    private boolean[] connected;
+
+    @Override
+    public Logger getLogger() {
+        return log;
+    }
+
+    @Override
+    public void run() {
         Stopwatch stopwatch = Stopwatch.createStarted();
         log.info("Starting the bot...");
 
-        shardManager = DefaultShardManagerBuilder.createDefault(System.getenv("DISCORD_BOT_TOKEN"))
+        shardManager = DefaultShardManagerBuilder.createDefault(Dotenv.load().get("DISCORD_BOT_TOKEN"))
                 .enableIntents(
                         GatewayIntent.GUILD_MEMBERS,
                         GatewayIntent.GUILD_MEMBERS,
@@ -50,15 +60,7 @@ public class BotImpl implements Runnable, Bot {
         shardManager.setActivity(Activity.playing("Corrupting %s servers".formatted(shardManager.getGuilds().size())));
         shardManager.setStatus(OnlineStatus.ONLINE);
 
-        heartbeat = new Heartbeat(this);
-        heartbeat.setName("dern-bot-heartbeat");
-
         log.info("Bot is online and connected to {} servers, took {} ms", shardManager.getGuilds().size(), stopwatch.stop().elapsed().toMillis());
-    }
-
-    @Override
-    public Logger getLogger() {
-        return log;
     }
 
     @Override
@@ -69,14 +71,8 @@ public class BotImpl implements Runnable, Bot {
         shardManager.setStatus(OnlineStatus.IDLE);
         shardManager.setActivity(Activity.playing("Shutting down..."));
         shardManager.shutdown();
-        heartbeat.terminate();
 
         log.info("Bot shutdown complete in {} ms", stopwatch.stop().elapsed().toMillis());
-    }
-
-    @Override
-    public StoppableThread getHeartbeat() {
-        return heartbeat;
     }
 
     @Override
@@ -137,15 +133,12 @@ public class BotImpl implements Runnable, Bot {
         }
     }
 
-    @Override
-    public void run() {
-        log.info("Starting the bot heartbeat...");
-        new Thread(heartbeat).start();
-    }
-
     private void awaitJDAReady() {
         shardManager.getShards().forEach(jda -> {
             try {
+                JDACommands.builder(jda, DernBot.class)
+                        .instanceProvider(springInteractionControllerInstantiator)
+                        .start();
                 jda.awaitReady();
                 log.info("JDA is ready for shard {}", jda.getShardInfo().getShardId());
             } catch (InterruptedException exception) {

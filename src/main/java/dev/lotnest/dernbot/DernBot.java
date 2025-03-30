@@ -21,7 +21,7 @@ public class DernBot {
 
         @Bean
         public ApplicationRunner runner() {
-            return args -> {
+            return _ -> {
                 new Thread(bot::run, "dern-bot").start();
                 Runtime.getRuntime().addShutdownHook(new Thread(bot::shutdownHook));
             };

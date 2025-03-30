@@ -1,4 +1,4 @@
-import org.gradle.kotlin.dsl.implementation
+import org.gradle.kotlin.dsl.annotationProcessor
 
 plugins {
     java
@@ -11,7 +11,7 @@ version = "0.0.1-SNAPSHOT"
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(23)
     }
 }
 
@@ -30,6 +30,10 @@ extra["jdaVersion"] = "5.3.1"
 extra["gsonVersion"] = "2.12.1"
 extra["guavaVersion"] = "33.4.0-jre"
 extra["hikariCPVersion"] = "6.2.1"
+extra["dotenv-javaVersion"] = "3.2.0"
+extra["jda-commandsVersion"] = "4.0.0-beta.5"
+extra["commons-lang3Version"] = "3.17.0"
+extra["mapstructVersion"] = "1.6.3"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -44,12 +48,20 @@ dependencies {
     implementation("com.google.code.gson:gson:${property("gsonVersion")}")
     implementation("com.google.guava:guava:${property("guavaVersion")}")
     implementation("com.zaxxer:HikariCP:${property("hikariCPVersion")}")
+    implementation("io.github.cdimascio:dotenv-java:${property("dotenv-javaVersion")}")
+    implementation("io.github.kaktushose:jda-commands:${property("jda-commandsVersion")}") {
+        exclude(module = "guice-extension")
+    }
+    implementation("org.apache.commons:commons-lang3:${property("commons-lang3Version")}")
+    implementation("org.mapstruct:mapstruct:${property("mapstructVersion")}")
+    annotationProcessor("org.mapstruct:mapstruct-processor:${property("mapstructVersion")}")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     compileOnly("org.projectlombok:lombok")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
     runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -58,4 +70,8 @@ dependencies {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.withType<JavaCompile> {
+    options.compilerArgs.add("-parameters")
 }

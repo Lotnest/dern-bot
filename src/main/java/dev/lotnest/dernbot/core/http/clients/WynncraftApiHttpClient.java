@@ -2,17 +2,16 @@ package dev.lotnest.dernbot.core.http.clients;
 
 import dev.lotnest.dernbot.core.http.HttpClient;
 import dev.lotnest.dernbot.core.http.ratelimiter.RateLimiters;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.net.http.HttpResponse;
 import java.util.concurrent.CompletableFuture;
 
+@Service
 public class WynncraftApiHttpClient extends HttpClient {
-    private WynncraftApiHttpClient() {
-        super();
-    }
-
-    public static WynncraftApiHttpClient newHttpClient() {
-        return new WynncraftApiHttpClient();
+    public WynncraftApiHttpClient(RestTemplate restTemplate) {
+        super(restTemplate);
     }
 
     @Override
@@ -28,8 +27,8 @@ public class WynncraftApiHttpClient extends HttpClient {
     @Override
     public CompletableFuture<HttpResponse<String>> getAsync(String url) {
         return CompletableFuture.runAsync(RateLimiters.WYNNCRAFT_API::acquire)
-                .thenCompose(v -> super.getAsync(url))
-                .whenComplete((response, throwable) -> RateLimiters.WYNNCRAFT_API.release());
+                .thenCompose(_ -> super.getAsync(url))
+                .whenComplete((_, _) -> RateLimiters.WYNNCRAFT_API.release());
     }
 
     @Override
@@ -45,7 +44,7 @@ public class WynncraftApiHttpClient extends HttpClient {
     @Override
     public CompletableFuture<HttpResponse<String>> postAsync(String url, String body) {
         return CompletableFuture.runAsync(RateLimiters.WYNNCRAFT_API::acquire)
-                .thenCompose(v -> super.postAsync(url, body))
-                .whenComplete((response, throwable) -> RateLimiters.WYNNCRAFT_API.release());
+                .thenCompose(_ -> super.postAsync(url, body))
+                .whenComplete((_, _) -> RateLimiters.WYNNCRAFT_API.release());
     }
 }

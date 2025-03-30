@@ -1,6 +1,5 @@
 package dev.lotnest.dernbot.jda.bot;
 
-import dev.lotnest.dernbot.core.utils.StoppableThread;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import org.slf4j.Logger;
@@ -11,7 +10,6 @@ public interface Bot {
     Logger getLogger();
     void run();
     void shutdownHook();
-    StoppableThread getHeartbeat();
 
     ShardManager getShardManager();
     Integer getShardId(JDA jda);
