@@ -1,0 +1,12 @@
+# This file is used to set environment variables for the application.
+# If you want to run the application, simply rename this file to ".env" and fill in the values.
+
+# Discord bot settings
+DISCORD_BOT_TOKEN=
+
+# PostgreSQL database connection settings
+POSTGRES_DB=dern-bot
+POSTGRES_PASSWORD=
+POSTGRES_USER=
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
