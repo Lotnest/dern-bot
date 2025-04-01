@@ -106,7 +106,7 @@ public interface PlayerMapper {
                 .append(
                         """
                                 
-                                ### <:ArrowRight:1139210841678430329> Raids
+                                ### :arrow_forward: Raids
                                 Total: **""")
                 .append(player.getGlobalData().getRaids().getTotal())
                 .append("**");
@@ -131,7 +131,7 @@ public interface PlayerMapper {
                 .append(
                         """
                                 
-                                ### <:ArrowRight:1139210841678430329> Dungeons
+                                ### :arrow_forward: Dungeons
                                 Total: **""")
                 .append(player.getGlobalData().getDungeons().getTotal())
                 .append("**");

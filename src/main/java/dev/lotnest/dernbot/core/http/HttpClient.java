@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -58,7 +59,7 @@ public class HttpClient {
      * @param context a short text describing the request context for error logging
      * @return the HTTP response, or null if an error occurred
      */
-    private HttpResponse<String> sendSyncRequest(java.net.http.HttpRequest request, String context) {
+    private HttpResponse<String> sendSyncRequest(HttpRequest request, String context) {
         java.net.http.HttpClient client = getAvailableClient();
         try {
             return client.send(request, HttpResponse.BodyHandlers.ofString());
@@ -82,7 +83,7 @@ public class HttpClient {
      * @return a CompletableFuture with the HTTP response, or null if an error occurred
      */
     private CompletableFuture<HttpResponse<String>> sendAsyncRequest(
-            java.net.http.HttpRequest request, String context) {
+            HttpRequest request, String context) {
         try {
             java.net.http.HttpClient client = getAvailableClient();
             CompletableFuture<HttpResponse<String>> future =
@@ -116,7 +117,12 @@ public class HttpClient {
     }
 
     public <T> T getJson(String url, Class<T> responseType, Object... uriVariables) {
-        return restTemplate.getForObject(url, responseType, uriVariables);
+        try {
+            return restTemplate.getForObject(url, responseType, uriVariables);
+        } catch (Exception exception) {
+            log.error("Failed to fetch JSON from {}: {}", url, exception.getMessage());
+            return null;
+        }
     }
 
     public <T> CompletableFuture<T> getJsonAsync(String url, Class<T> responseType) {
