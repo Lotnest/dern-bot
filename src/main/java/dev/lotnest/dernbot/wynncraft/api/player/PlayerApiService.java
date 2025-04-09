@@ -7,11 +7,16 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class PlayerApiService {
+    private static final String PLAYER_LIST_API_URL = "https://api.wynncraft.com/v3/player";
     private static final String PLAYER_API_URL = "https://api.wynncraft.com/v3/player/%s";
 
     private final WynncraftApiHttpClient wynncraftApiHttpClient;
 
     public Player getPlayer(String playerName) {
         return wynncraftApiHttpClient.getJson(String.format(PLAYER_API_URL, playerName), Player.class);
+    }
+
+    public PlayerListResponse getOnlinePlayers() {
+        return wynncraftApiHttpClient.getJson(PLAYER_LIST_API_URL, PlayerListResponse.class);
     }
 }
