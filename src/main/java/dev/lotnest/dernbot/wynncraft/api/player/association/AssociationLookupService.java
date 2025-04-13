@@ -3,6 +3,7 @@ package dev.lotnest.dernbot.wynncraft.api.player.association;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -23,7 +24,11 @@ public class AssociationLookupService {
     public List<PlayerAssociationDTO> lookupAssociations(String playerName) {
         AssociatedPlayer player = associatedPlayerRepository.findById(playerName)
                 .orElseThrow(() -> new IllegalArgumentException("Player not found: " + playerName));
+
         long seenCount = player.getSeenCount();
+        if (seenCount <= 0L) {
+            return Collections.emptyList();
+        }
 
         List<PlayerAssociation> associations = playerAssociationRepository.findByPlayerAOrPlayerB(playerName, playerName);
         Map<String, Long> aggregatedCounts = associations.stream()
@@ -34,7 +39,7 @@ public class AssociationLookupService {
                 .map(entry -> {
                     String associatedPlayerName = entry.getKey();
                     long count = entry.getValue();
-                    double probability = seenCount > 0 ? (double) count / seenCount : 0.0;
+                    double probability = (double) count / seenCount;
                     return new PlayerAssociationDTO(associatedPlayerName, count, probability);
                 })
                 .sorted((a, b) -> Long.compare(b.getCount(), a.getCount()))
