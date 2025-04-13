@@ -3,6 +3,7 @@ package dev.lotnest.dernbot.wynncraft.api.player.association;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,6 +11,7 @@ import lombok.ToString;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+@Table(name = "player_associations")
 @Entity
 @IdClass(PlayerAssociationId.class)
 @NoArgsConstructor
