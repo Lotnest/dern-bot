@@ -7,5 +7,5 @@ import java.util.List;
 
 @Repository
 public interface PlayerAssociationRepository extends JpaRepository<PlayerAssociation, PlayerAssociationId> {
-    List<PlayerAssociation> findByPlayer1OrPlayer2(String player1, String player2);
+    List<PlayerAssociation> findByPlayerAOrPlayerB(String playerA, String playerB);
 }

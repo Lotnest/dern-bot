@@ -17,25 +17,24 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 @Setter
 @ToString
 public class PlayerAssociation {
+    @Id
+    private String playerA;
 
     @Id
-    private String player1;
-
-    @Id
-    private String player2;
+    private String playerB;
 
     @Id
     private String server;
 
     private int count;
 
-    public PlayerAssociation(String player1, String player2, String server, int count) {
-        if (player1.compareTo(player2) <= 0) {
-            this.player1 = player1;
-            this.player2 = player2;
+    public PlayerAssociation(String playerA, String playerB, String server, int count) {
+        if (playerA.compareTo(playerB) <= 0) {
+            this.playerA = playerA;
+            this.playerB = playerB;
         } else {
-            this.player1 = player2;
-            this.player2 = player1;
+            this.playerA = playerB;
+            this.playerB = playerA;
         }
         this.server = server;
         this.count = count;
@@ -46,8 +45,8 @@ public class PlayerAssociation {
         if (this == o) return true;
         if (!(o instanceof PlayerAssociation)) return false;
         return new EqualsBuilder()
-                .append(player1, ((PlayerAssociation) o).getPlayer1())
-                .append(player2, ((PlayerAssociation) o).getPlayer2())
+                .append(playerA, ((PlayerAssociation) o).getPlayerA())
+                .append(playerB, ((PlayerAssociation) o).getPlayerB())
                 .append(server, ((PlayerAssociation) o).getServer())
                 .isEquals();
     }
@@ -55,8 +54,8 @@ public class PlayerAssociation {
     @Override
     public final int hashCode() {
         return new HashCodeBuilder()
-                .append(player1)
-                .append(player2)
+                .append(playerA)
+                .append(playerB)
                 .append(server)
                 .toHashCode();
     }

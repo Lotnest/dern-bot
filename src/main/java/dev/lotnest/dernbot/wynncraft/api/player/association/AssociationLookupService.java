@@ -25,9 +25,9 @@ public class AssociationLookupService {
                 .orElseThrow(() -> new IllegalArgumentException("Player not found: " + playerName));
         long seenCount = player.getSeenCount();
 
-        List<PlayerAssociation> associations = playerAssociationRepository.findByPlayer1OrPlayer2(playerName, playerName);
+        List<PlayerAssociation> associations = playerAssociationRepository.findByPlayerAOrPlayerB(playerName, playerName);
         Map<String, Long> aggregatedCounts = associations.stream()
-                .collect(Collectors.groupingBy(association -> association.getPlayer1().equals(playerName) ? association.getPlayer2() : association.getPlayer1(),
+                .collect(Collectors.groupingBy(association -> association.getPlayerA().equals(playerName) ? association.getPlayerB() : association.getPlayerA(),
                         Collectors.summingLong(PlayerAssociation::getCount)));
 
         return aggregatedCounts.entrySet().stream()
@@ -37,7 +37,7 @@ public class AssociationLookupService {
                     double probability = seenCount > 0 ? (double) count / seenCount : 0.0;
                     return new PlayerAssociationDTO(associatedPlayerName, count, probability);
                 })
-                .sorted((a, b) -> Long.compare(b.getCount(), a.getCount())) // Sort by count descending
+                .sorted((a, b) -> Long.compare(b.getCount(), a.getCount()))
                 .toList();
     }
 
